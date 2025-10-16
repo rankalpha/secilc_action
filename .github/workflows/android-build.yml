@@ -74,8 +74,9 @@ jobs:
         echo "Building libsepol..."
         cd libsepol
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
-             CFLAGS="-D_GNU_SOURCE -O2 -fPIC"
-
+             CFLAGS="-D_GNU_SOURCE -O2 -fPIC" \
+             LDFLAGS="-static"
+             
         # 创建符号链接解决头文件路径问题
         echo "Creating symlink for header files..."
         mkdir -p include/sepol
@@ -87,14 +88,16 @@ jobs:
         
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
              CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include -I../libsepol/cil/include" \
-             LDFLAGS="-L../libsepol/src" \
-             LIBS="-lsepol"
+             LDFLAGS="-L../libsepol/src -static" \
+             LIBS="-l:libsepol.a"
         
         # 检查编译是否成功
         if [ ! -f "secilc" ]; then
           echo "secilc binary not found after compilation!"
           exit 1
         fi
+        
+        file secilc | grep "statically linked" || (echo "Binary is not statically linked!" && exit 1)
         
         # 准备输出目录
         mkdir -p ../android-build/${{ matrix.target }}
