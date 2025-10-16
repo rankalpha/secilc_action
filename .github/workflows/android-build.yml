@@ -15,13 +15,13 @@ jobs:
         target: [arm64-v8a, armeabi-v7a, x86, x86_64]
     
     steps:
-    - name: Checkout repository
+    - name: Checkout workflow (not needed for source)
       uses: actions/checkout@v4
     
     - name: Set up Android NDK
       uses: nttld/setup-ndk@v1
       with:
-        ndk-version: r28c
+        ndk-version: '25.2.9519653'
     
     - name: Set up build environment
       run: |
@@ -31,7 +31,7 @@ jobs:
     - name: Build for ${{ matrix.target }}
       run: |
         # 设置 Android 工具链
-        export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.2.13676358
+        export ANDROID_NDK_HOME=$ANDROID_NDK_ROOT
         export TOOLCHAIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64
         
         # 根据目标架构设置环境变量
@@ -61,35 +61,45 @@ jobs:
         export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
         export STRIP=$TOOLCHAIN/bin/llvm-strip
         
-        # 编译 libsepol（secilc 的依赖）
+        # 克隆 SELinux 项目（包含 secilc 和 libsepol）
         git clone https://github.com/SELinuxProject/selinux.git
         cd selinux
-        echo "enter $(pwd) directory ...."
-        git checkout libsepol-3.5
+        
+        # 切换到稳定版本（根据需要调整）
+        git checkout main
+        
+        # 首先编译 libsepol（secilc 的依赖）
+        echo "Building libsepol..."
         cd libsepol
-        echo "enter $(pwd) directory ...."
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
              CFLAGS="-D_GNU_SOURCE -O2 -fPIC"
-        echo "make 1 success!"
         
-        # 编译 secilc
-        cd ../..
+        # 然后编译 secilc
+        echo "Building secilc..."
+        cd ../secilc
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
-             CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I$(pwd)/selinux/libsepol/include" \
-             LDFLAGS="-L$(pwd)/selinux/libsepol/src" \
+             CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include" \
+             LDFLAGS="-L../libsepol/src" \
              LIBS="-lsepol"
-        echo "make 2 success!"
         
-        # 重命名并复制二进制文件
-        mkdir -p android-build/${{ matrix.target }}
-        cp secilc android-build/${{ matrix.target }}/secilc
-        $STRIP android-build/${{ matrix.target }}/secilc
+        # 检查编译是否成功
+        if [ ! -f "secilc" ]; then
+          echo "secilc binary not found after compilation!"
+          exit 1
+        fi
+        
+        # 准备输出目录
+        mkdir -p ../android-build/${{ matrix.target }}
+        cp secilc ../android-build/${{ matrix.target }}/
+        $STRIP ../android-build/${{ matrix.target }}/secilc
+        
+        echo "Build completed successfully for ${{ matrix.target }}"
     
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: secilc-android-${{ matrix.target }}
-        path: android-build/${{ matrix.target }}/
+        path: selinux/android-build/${{ matrix.target }}/
         retention-days: 7
 
   create-release:
@@ -118,4 +128,3 @@ jobs:
           artifacts/secilc-android-armeabi-v7a/secilc
           artifacts/secilc-android-x86/secilc
           artifacts/secilc-android-x86_64/secilc
-          
