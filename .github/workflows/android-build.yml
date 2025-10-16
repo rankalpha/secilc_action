@@ -82,6 +82,10 @@ jobs:
         # 编译 secilc
         echo "Building secilc..."
         cd ../secilc
+
+        # 修改 Makefile 跳过文档生成
+        sed -i 's/^all: .* docs/all: $(BINARIES)/' Makefile
+        
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
              CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include -I../libsepol/cil/include" \
              LDFLAGS="-L../libsepol/src" \
