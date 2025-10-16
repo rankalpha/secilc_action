@@ -74,9 +74,7 @@ jobs:
         echo "Building libsepol..."
         cd libsepol
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
-             CFLAGS="-D_GNU_SOURCE -O2 -fPIC" \
-             LDFLAGS="-static -lpthread"
-             
+             CFLAGS="-D_GNU_SOURCE -O2 -fPIC"
         # 创建符号链接解决头文件路径问题
         echo "Creating symlink for header files..."
         mkdir -p include/sepol
@@ -88,16 +86,14 @@ jobs:
         
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
              CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include -I../libsepol/cil/include" \
-             LDFLAGS="-L../libsepol/src -static -Wl,--no-undefined" \
-             LIBS="-l:libsepol.a -lpthread"
-             
+             LDFLAGS="-L../libsepol/src" \
+             LIBS="-lsepol"
+        
         # 检查编译是否成功
         if [ ! -f "secilc" ]; then
           echo "secilc binary not found after compilation!"
           exit 1
         fi
-        
-        file secilc | grep "statically linked" || (echo "Binary is not statically linked!" && exit 1)
         
         # 准备输出目录
         mkdir -p ../android-build/${{ matrix.target }}
@@ -105,7 +101,8 @@ jobs:
         $STRIP ../android-build/${{ matrix.target }}/secilc
         $STRIP ../android-build/${{ matrix.target }}/secil2conf
         $STRIP ../android-build/${{ matrix.target }}/secil2tree
-        
+        mkdir -p ../android-build/${{ matrix.target }}/lib
+        cp ../libsepol/src/libsepol.so.2 ../android-build/${{ matrix.target }}/lib/
         echo "Build completed successfully for ${{ matrix.target }}"
     
     - name: Upload artifacts
@@ -140,12 +137,4 @@ jobs:
           artifacts/secilc-android-arm64-v8a/secilc
           artifacts/secilc-android-arm64-v8a/secil2conf
           artifacts/secilc-android-arm64-v8a/secil2tree
-          artifacts/secilc-android-armeabi-v7a/secilc
-          artifacts/secilc-android-armeabi-v7a/secil2conf
-          artifacts/secilc-android-armeabi-v7a/secil2tree
-          artifacts/secilc-android-x86/secilc
-          artifacts/secilc-android-x86/secil2conf
-          artifacts/secilc-android-x86/secil2tree
-          artifacts/secilc-android-x86_64/secilc
-          artifacts/secilc-android-x86_64/secil2conf
-          artifacts/secilc-android-x86_64/secil2tree
+          artifacts/secilc-android-arm64-v8a/lib/libsepol.so.2
