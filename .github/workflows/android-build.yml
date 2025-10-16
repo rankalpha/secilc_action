@@ -73,7 +73,15 @@ jobs:
         cd libsepol
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
              CFLAGS="-D_GNU_SOURCE -O2 -fPIC"
-        
+
+        # 编译 CIL 部分
+        echo "Building CIL..."
+        cd ../cil
+        make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
+             CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include" \
+             LDFLAGS="-L../libsepol/src" \
+             LIBS="-lsepol"
+             
         # 然后编译 secilc
         echo "Building secilc..."
         cd ../secilc
