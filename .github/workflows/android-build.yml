@@ -21,8 +21,8 @@ jobs:
     - name: Set up Android NDK
       uses: nttld/setup-ndk@v1
       with:
-        ndk-version: '25.2.9519653'
-    
+        ndk-version: r28c
+        
     - name: Set up build environment
       run: |
         sudo apt-get update
