@@ -21,7 +21,7 @@ jobs:
     - name: Set up Android NDK
       uses: nttld/setup-ndk@v1
       with:
-        ndk-version: r28c
+        ndk-version: r25c
     
     - name: Set up build environment
       run: |
@@ -31,7 +31,7 @@ jobs:
     - name: Build for ${{ matrix.target }}
       run: |
         # 设置 Android 工具链
-        export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.2.13676358
+        export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653
         export TOOLCHAIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64
         
         # 根据目标架构设置环境变量
@@ -64,10 +64,13 @@ jobs:
         # 编译 libsepol（secilc 的依赖）
         git clone https://github.com/SELinuxProject/selinux.git
         cd selinux
+        echo "enter $(pwd) directory ...."
         git checkout libsepol-3.5
         cd libsepol
+        echo "enter $(pwd) directory ...."
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
              CFLAGS="-D_GNU_SOURCE -O2 -fPIC"
+        echo "make 1 success!"
         
         # 编译 secilc
         cd ../..
@@ -75,6 +78,7 @@ jobs:
              CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I$(pwd)/selinux/libsepol/include" \
              LDFLAGS="-L$(pwd)/selinux/libsepol/src" \
              LIBS="-lsepol"
+        echo "make 2 success!"
         
         # 重命名并复制二进制文件
         mkdir -p android-build/${{ matrix.target }}
