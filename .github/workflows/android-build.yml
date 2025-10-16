@@ -97,8 +97,10 @@ jobs:
         
         # 准备输出目录
         mkdir -p ../android-build/${{ matrix.target }}
-        cp secilc ../android-build/${{ matrix.target }}/
+        cp secilc secil2conf secil2tree ../android-build/${{ matrix.target }}/
         $STRIP ../android-build/${{ matrix.target }}/secilc
+        $STRIP ../android-build/${{ matrix.target }}/secil2conf
+        $STRIP ../android-build/${{ matrix.target }}/secil2tree
         
         echo "Build completed successfully for ${{ matrix.target }}"
     
@@ -132,6 +134,14 @@ jobs:
         prerelease: false
         files: |
           artifacts/secilc-android-arm64-v8a/secilc
+          artifacts/secilc-android-arm64-v8a/secil2conf
+          artifacts/secilc-android-arm64-v8a/secil2tree
           artifacts/secilc-android-armeabi-v7a/secilc
+          artifacts/secilc-android-armeabi-v7a/secil2conf
+          artifacts/secilc-android-armeabi-v7a/secil2tree
           artifacts/secilc-android-x86/secilc
+          artifacts/secilc-android-x86/secil2conf
+          artifacts/secilc-android-x86/secil2tree
           artifacts/secilc-android-x86_64/secilc
+          artifacts/secilc-android-x86_64/secil2conf
+          artifacts/secilc-android-x86_64/secil2tree
