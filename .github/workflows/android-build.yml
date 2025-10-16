@@ -74,21 +74,18 @@ jobs:
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
              CFLAGS="-D_GNU_SOURCE -O2 -fPIC"
 
-        # 编译 CIL 部分
-        echo "Building CIL..."
-        cd ../cil
-        make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
-             CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include" \
-             LDFLAGS="-L../libsepol/src" \
-             LIBS="-lsepol"
-             
-        # 然后编译 secilc
+        # 创建符号链接解决头文件路径问题
+        echo "Creating symlink for header files..."
+        mkdir -p include/sepol
+        ln -s $(pwd)/cil/include/cil include/sepol/cil
+        
+        # 编译 secilc
         echo "Building secilc..."
         cd ../secilc
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
-             CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include -I../cil/include" \
-             LDFLAGS="-L../libsepol/src -L../cil" \
-             LIBS="-lsepol -lcil"
+             CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include -I../libsepol/cil/include" \
+             LDFLAGS="-L../libsepol/src" \
+             LIBS="-lsepol"
         
         # 检查编译是否成功
         if [ ! -f "secilc" ]; then
