@@ -86,9 +86,9 @@ jobs:
         echo "Building secilc..."
         cd ../secilc
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
-             CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include" \
-             LDFLAGS="-L../libsepol/src" \
-             LIBS="-lsepol"
+             CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include -I../cil/include" \
+             LDFLAGS="-L../libsepol/src -L../cil" \
+             LIBS="-lsepol -lcil"
         
         # 检查编译是否成功
         if [ ! -f "secilc" ]; then
