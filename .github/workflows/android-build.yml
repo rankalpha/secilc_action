@@ -83,6 +83,7 @@ jobs:
         
         # 编译 secilc
         echo "Building secilc..."
+        cd ../secilc
         
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
              CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include -I../libsepol/cil/include" \
