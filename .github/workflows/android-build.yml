@@ -27,7 +27,9 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential automake autoconf libtool pkg-config
-    
+        # 安装 xmlto 和相关文档生成工具
+        sudo apt-get install -y xmlto docbook-utils docbook-xsl xsltproc
+        
     - name: Build for ${{ matrix.target }}
       run: |
         # 设置 Android 工具链
@@ -81,10 +83,6 @@ jobs:
         
         # 编译 secilc
         echo "Building secilc..."
-        cd ../secilc
-
-        # 修改 Makefile 跳过文档生成
-        sed -i 's/^all: .* docs/all: $(BINARIES)/' Makefile
         
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
              CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include -I../libsepol/cil/include" \
