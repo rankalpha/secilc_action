@@ -19,9 +19,9 @@ jobs:
       uses: actions/checkout@v4
     
     - name: Set up Android NDK
-      uses: nttld/setup-ndk@v1
+    - uses: nttld/setup-ndk@v1
       with:
-        ndk-version: '28.2.13676358'
+        ndk-version: r28c
     
     - name: Set up build environment
       run: |
