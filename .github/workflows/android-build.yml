@@ -75,7 +75,7 @@ jobs:
         cd libsepol
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
              CFLAGS="-D_GNU_SOURCE -O2 -fPIC" \
-             LDFLAGS="-static"
+             LDFLAGS="-static -lpthread"
              
         # 创建符号链接解决头文件路径问题
         echo "Creating symlink for header files..."
@@ -88,9 +88,9 @@ jobs:
         
         make CC="$CC" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
              CFLAGS="-D_GNU_SOURCE -O2 -fPIC -I../libsepol/include -I../libsepol/cil/include" \
-             LDFLAGS="-L../libsepol/src -static" \
-             LIBS="-l:libsepol.a"
-        
+             LDFLAGS="-L../libsepol/src -static -Wl,--no-undefined" \
+             LIBS="-l:libsepol.a -lpthread"
+             
         # 检查编译是否成功
         if [ ! -f "secilc" ]; then
           echo "secilc binary not found after compilation!"
