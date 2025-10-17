@@ -9,7 +9,9 @@ jobs:
   build-android:
     name: Build secilc for Android
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: write   # 这里为GITHUB_TOKEN赋予写入权限
+      
     strategy:
       matrix:
         target: [arm64-v8a]
